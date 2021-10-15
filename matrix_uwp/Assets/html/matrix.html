@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="/vue.js"></script>
+    <script src="ms-appx-web:///Assets/html/vue.js"></script>
+    <style>
+      table {
+        position: relative;
+      }
+      table:before,
+      table:after {
+        content: "";
+        height: 100%;
+        position: absolute;
+        border-color: black;
+        border-style: solid;
+        width: 10px;
+        top: -1px;
+      }
+      table:before {
+        left: -2px;
+        border-width: 2px 0px 2px 2px;
+      }
+      table:after {
+        right: -2px;
+        border-width: 2px 2px 2px 0px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="main" align="center">
+      <div>
+        <span>行数</span>
+        <input v-model.number="row_num" type="number" style="width: 40px" />
+        <span>列数</span>
+        <input v-model.number="col_num" type="number" style="width: 40px" />
+      </div>
+      <div style="margin-top: 10px">
+        <button onclick="setdata('3 3 0')">重置</button>
+      </div>
+      <table style="margin-top: 10px" id="matrix_table">
+        <tr>
+          <td></td>
+          <td v-for="i in (col_num-0)" style="text-align: center">
+            <span>{{i}}</span>
+          </td>
+        </tr>
+        <tr v-for="i in (row_num-0)">
+          <td>{{i}}</td>
+          <td v-for="j in (col_num-0)">
+            <input
+              style="width: 25px"
+              value="0"
+              :i="i"
+              :j="j"
+              class="matrix_element"
+            />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <script>
+      var matrix = new Vue({
+        el: "#main",
+        data: {
+          row_num: 3,
+          col_num: 3,
+        },
+      });
+      function getdata() {
+        var return_str = matrix.row_num + " " + matrix.col_num + " ";
+        var return_str2 = "";
+        var count = 0;
+        var matrix_element = document.getElementsByClassName("matrix_element");
+        for (var i = 0; i < matrix_element.length; i++) {
+          if (matrix_element[i].value - 0 == 0) {
+            continue;
+          }
+          return_str2 += matrix_element[i].getAttribute("i") + " ";
+          return_str2 += matrix_element[i].getAttribute("j") + " ";
+          return_str2 += matrix_element[i].value + " ";
+          count += 1;
+        }
+        return_str = return_str + count + " " + return_str2;
+        return return_str.substr(0, return_str.length - 1);
+      }
+      function setdata(str) {
+        var str_group = str.split(" ");
+        matrix.row_num = parseInt(str_group[0]);
+        matrix.col_num = parseInt(str_group[1]);
+        var dict = {};
+        for (i = 3; i / 3 <= parseInt(str_group[2]); i += 3) {
+          dict[str_group[i] + " " + str_group[i + 1]] = parseInt(
+            str_group[i + 2]
+          );
+        }
+        matrix.$nextTick(() => {
+          var matrix_element =
+            document.getElementsByClassName("matrix_element");
+          for (var i = 0; i < matrix_element.length; i++) {
+            if (
+              dict.hasOwnProperty(
+                matrix_element[i].getAttribute("i") +
+                  " " +
+                  matrix_element[i].getAttribute("j")
+              )
+            ) {
+              matrix_element[i].value =
+                dict[
+                  matrix_element[i].getAttribute("i") +
+                    " " +
+                    matrix_element[i].getAttribute("j")
+                ];
+            } else {
+              matrix_element[i].value = 0;
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
